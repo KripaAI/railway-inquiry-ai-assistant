@@ -1,2 +1,12 @@
-python-dotenv>=1.0.0
+fastmcp
+python-dotenv
+requests
+streamlit
+nest-asyncio
 
+langchain
+langgraph
+langchain-openai
+langchain-mcp-adapters
+
+openai
