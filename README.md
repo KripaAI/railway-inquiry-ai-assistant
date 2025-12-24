@@ -83,7 +83,7 @@ http://localhost:8501
 
 💬 Example Queries
 
-“What is the PNR status of 2749628734?”
+“What is the PNR status of ?”
 
 “Station code for New Delhi”
 
