@@ -1,12 +1,22 @@
-fastmcp
-python-dotenv
-requests
-streamlit
-nest-asyncio
+# Core Dependencies
+python-dotenv>=1.0.0
+requests>=2.31.0
 
-langchain
-langgraph
-langchain-openai
-langchain-mcp-adapters
+# Streamlit UI
+streamlit>=1.28.0
 
+# Async Support
+nest-asyncio>=1.5.8
+
+# LangChain & LangGraph
+langchain>=0.1.0
+langchain-openai>=0.0.5
+langchain-core>=0.1.0
+langgraph>=0.0.40
+langchain-mcp-adapters>=0.1.0
+
+# MCP Server
+fastmcp>=0.1.0
+
+# OpenAI
 openai

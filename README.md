@@ -1,127 +1,262 @@
-🚄 Indian Railways Inquiry AI Assistant
+# Indian Railways Inquiry AI Assistant
 
-An AI-powered Indian Railways inquiry system that allows users to ask natural language questions and receive accurate, real-time railway information such as PNR status, station codes, and live train details.
+An AI-powered Indian Railways inquiry system that allows users to ask natural language questions and receive accurate, real-time railway information. Built with a tool-driven, agentic AI architecture using LLMs, MCP servers, and LangGraph to ensure reliable, hallucination-free outputs.
 
-This project demonstrates a tool-driven, agentic AI architecture using LLMs, MCP servers, and LangGraph, designed to avoid hallucinations and ensure reliable outputs.
+---
 
-✨ Features
+## Features
 
-🔍 PNR Status Inquiry
+| Feature | Description |
+|---------|-------------|
+| **PNR Status** | Check booking status with passenger details, chart status, and journey info |
+| **Station Code Lookup** | Convert city/station names to official IRCTC station codes |
+| **Live Trains** | Find trains running between stations in the next few hours |
+| **Train Schedule** | Get complete route/timetable with all station stops |
+| **Fare Enquiry** | Check ticket prices across different classes (SL, 3A, 2A, 1A, etc.) |
+| **Live Train Status** | Track current location, delay, and running status of trains |
+| **Seat Availability** | Check class-wise seat availability with confirmation chances |
+| **Train Search** | Search all trains between two stations/cities |
 
-🏙️ Station Name → Station Code Resolution
+---
 
-🚆 Live Trains Between Two Stations
+## System Architecture
 
-💬 Natural Language Chat Interface
-
-🛠️ Strict Tool-Based AI (No Guessing)
-
-📊 Real-Time Data via IRCTC APIs
-
-🧠 System Architecture
+```
 User (Streamlit Chat UI)
-        │
-        ▼
-LLM Agent (GPT-4o + LangGraph)
-        │
-        │ decides which tool to call
-        ▼
-FastMCP Tool Server
-(PNR • Station Codes • Live Trains)
-        │
-        ▼
-IRCTC APIs (RapidAPI)
+         │
+         ▼
+┌─────────────────────────────────┐
+│   LLM Agent (GPT-4o-mini)       │
+│   + LangGraph Orchestration     │
+└─────────────────────────────────┘
+         │
+         │ decides which tool(s) to call
+         ▼
+┌─────────────────────────────────┐
+│   FastMCP Tool Server           │
+│   (8 Railway API Tools)         │
+└─────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────┐
+│   IRCTC APIs (via RapidAPI)     │
+└─────────────────────────────────┘
+```
 
-🏗️ Project Structure
+---
+
+## Project Structure
+
+```
 .
-├── RailwayServer.py        # FastMCP tool server (Railway APIs)
-├── app.py                  # Streamlit UI + LangGraph agent
+├── RailwayServer.py        # FastMCP tool server with 8 railway API tools
+├── app.py                  # Streamlit UI + LangGraph agent orchestration
 ├── .env                    # Environment variables (API keys)
 ├── requirements.txt        # Python dependencies
 └── README.md               # Project documentation
+```
 
-🔧 Tech Stack
+---
 
-Python
+## Tech Stack
 
-FastMCP – Tool server for railway operations
+| Component | Technology |
+|-----------|------------|
+| Language | Python 3.10+ |
+| Tool Server | FastMCP |
+| Agent Framework | LangChain + LangGraph |
+| LLM | OpenAI GPT-4o-mini |
+| Frontend | Streamlit |
+| Data Source | IRCTC APIs (RapidAPI) |
 
-LangChain & LangGraph – Agent orchestration
+---
 
-OpenAI GPT-4o-mini – LLM
+## Available Tools
 
-Streamlit – Chat-based UI
+### 1. `get_pnr_status`
+Fetch detailed PNR status including train info, journey details, and passenger booking/current status.
 
-RapidAPI (IRCTC APIs) – Real-time railway data
+**Input:** 10-digit PNR number
 
-⚙️ Setup Instructions
-1️⃣ Clone the Repository
-git clone https://github.com/your-username/indian-railways-inquiry-ai.git
-cd indian-railways-inquiry-ai
+### 2. `resolve_station_code`
+Convert city or station names to official station codes.
 
-2️⃣ Create & Activate Virtual Environment
+**Example:** "Delhi" → "NDLS", "Mumbai" → "BCT"
+
+### 3. `get_live_station_trains`
+Find trains running between two stations in the next N hours.
+
+**Input:** Source code, Destination code, Hours (default: 4)
+
+### 4. `get_train_schedule`
+Get complete route/timetable of a train with all stops, timings, and platform numbers.
+
+**Input:** 4-5 digit train number
+
+### 5. `get_fare`
+Get ticket prices for different classes between two stations.
+
+**Input:** Train number, Source code, Destination code, Date (optional)
+
+### 6. `get_live_train_status`
+Track current location, delay minutes, and running status of a train.
+
+**Input:** Train number, Date (optional)
+
+### 7. `check_seat_availability`
+Check seat availability with class-wise status, fares, and confirmation chances.
+
+**Input:** Source code, Destination code, Date (DD-MM-YYYY), Train number (optional)
+
+### 8. `search_trains`
+Search all trains between stations or cities. Supports major city expansion (Delhi searches NDLS, ANVT, DLI, DEE, DEC, SZM).
+
+**Input:** Source, Destination, Date (optional)
+
+---
+
+## Supported Major Cities
+
+The system automatically searches all major stations for these cities:
+
+| City | Stations Searched |
+|------|-------------------|
+| Delhi/New Delhi | NDLS, ANVT, DLI, DEE, DEC, SZM |
+| Mumbai | CSMT, BCT, LTT, BDTS |
+| Kolkata | HWH, SDAH, KOAA |
+| Chennai | MAS, MS, MSB |
+
+---
+
+## Setup Instructions
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/KripaAI/railway-inquiry-ai-assistant.git
+cd railway-inquiry-ai-assistant
+```
+
+### 2. Create Virtual Environment
+```bash
 python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3️⃣ Install Dependencies
+# Windows
+venv\Scripts\activate
+
+# macOS/Linux
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+```bash
 pip install -r requirements.txt
+```
 
-4️⃣ Configure Environment Variables
+### 4. Configure Environment Variables
 
-Create a .env file:
+Create a `.env` file in the project root:
 
-OPENAI_API_KEY=your_openai_key
+```env
+OPENAI_API_KEY=your_openai_api_key
 RAPIDAPI_KEY=your_rapidapi_key
+```
 
-▶️ Running the Application
+**Get your API keys:**
+- OpenAI API Key: [platform.openai.com](https://platform.openai.com/)
+- RapidAPI Key: [rapidapi.com/irctc-api](https://rapidapi.com/DEVELOPER13/api/irctc-api2)
+
+---
+
+## Running the Application
+
+```bash
 streamlit run app.py
+```
 
+Open your browser at: **http://localhost:8501**
 
-Then open the browser at:
+---
 
-http://localhost:8501
+## Example Queries
 
-💬 Example Queries
+```
+"What is the PNR status of 1234567890?"
 
-“What is the PNR status of ?”
+"Station code for Varanasi"
 
-“Station code for New Delhi”
+"Trains running from NDLS to CNB in the next 4 hours"
 
-“Trains running from NDLS to CNB in the next 4 hours”
+"Show me the schedule for train 12565"
 
-🛡️ Design Principles
+"What is the fare from Delhi to Mumbai on train 12951?"
 
-✅ Tool-first AI – LLM never guesses data
+"Check seat availability from HJP to NDLS on 15-01-2026"
 
-✅ Deterministic behavior using LangGraph
+"Search trains from Kolkata to Chennai"
 
-✅ Separation of concerns via MCP server
+"Live status of train 12301"
+```
 
-✅ Production-style agent architecture
+---
 
-🚀 Future Enhancements
+## Design Principles
 
-Seat availability & fare inquiry
+- **Tool-First AI** - LLM never guesses railway data; always uses verified API tools
+- **Deterministic Behavior** - LangGraph ensures predictable, repeatable agent flows
+- **Separation of Concerns** - MCP server handles all API logic independently
+- **Smart Station Handling** - Uses station codes directly when provided, resolves only when needed
+- **Production-Ready Architecture** - Built with scalability and reliability in mind
 
-Multilingual support
+---
 
-Caching & rate-limit optimization
+## How It Works
 
-User journey history
+1. **User Input** - User asks a question in natural language via Streamlit chat
+2. **Agent Decision** - LangGraph agent analyzes the query and decides which tool(s) to call
+3. **Tool Execution** - FastMCP server executes the appropriate IRCTC API calls
+4. **Response Formatting** - Agent formats the API response into a user-friendly answer
+5. **Display** - Response is shown in the chat interface with proper formatting
 
-Mobile-friendly UI
+---
 
-📌 Why This Project Matters
+## Future Enhancements
 
-This project showcases how LLMs can be used as reliable orchestrators, not just text generators.
+- Multilingual support (Hindi, regional languages)
+- Voice input/output integration
+- Booking recommendations based on availability
+- Journey planning with connections
+- Price alerts and notifications
+- Mobile-responsive PWA version
+- Caching layer for frequently accessed data
 
-It is a practical example of Agentic AI + MCP + real-world APIs working together in a safe and scalable way.
+---
 
-📜 License
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| "RAPIDAPI_KEY not found" | Ensure `.env` file exists with valid API key |
+| "No trains found" | Verify station codes are correct; try city names |
+| Connection timeout | Check internet connection; API may have rate limits |
+| "Train not running today" | Live status only works for trains running on that date |
+
+---
+
+## License
 
 MIT License
 
-🤝 Contributing
+---
 
-Contributions, issues, and feature requests are welcome!
-Feel free to fork the repo and submit a PR.
+## Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to fork the repository and submit a pull request.
+
+---
+
+## Acknowledgments
+
+- [IRCTC](https://www.irctc.co.in/) for railway data
+- [RapidAPI](https://rapidapi.com/) for API hosting
+- [LangChain](https://langchain.com/) & [LangGraph](https://langchain-ai.github.io/langgraph/) for agent framework
+- [FastMCP](https://github.com/jlowin/fastmcp) for tool server implementation

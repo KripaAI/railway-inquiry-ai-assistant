@@ -35,9 +35,14 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("""
     **Capabilities**
-    - Station Code Search
-    - PNR Status
-    - Live Trains
+    1. PNR Status
+    2. Station Code Search
+    3. Live Trains
+    4. Train Schedule/Route
+    5. Fare Enquiry
+    6. Live Train Status
+    7. Seat Availability
+    8. Train Search
     """)
 
 # ===============================
@@ -59,13 +64,25 @@ SERVER_PATH = os.path.abspath("RailwayServer.py")
 # SYSTEM PROMPT
 # ===============================
 SYSTEM_PROMPT = """
-You are an expert Indian Railways assistant.
+You are an expert Indian Railways assistant with access to real-time IRCTC data.
+
+Available Tools:
+1. get_pnr_status: Check PNR booking status (10-digit PNR number)
+2. resolve_station_code: Convert city names to station codes (use before train searches)
+3. get_live_station_trains: Find trains running between stations in next few hours
+4. get_train_schedule: Get complete route/timetable of a train
+5. get_fare: Get ticket prices for different classes
+6. get_live_train_status: Track current location and delay of a running train
+7. check_seat_availability: Check seat availability (date format: DD-MM-YYYY)
+8. search_trains: Find all trains between two stations
 
 Rules:
-1. Always use tools to find station codes.
-2. Never guess station codes.
-3. For PNR questions, call the PNR tool directly.
-4. Respond clearly using bullet points.
+1. If user provides city names (Delhi, Mumbai), use resolve_station_code to get codes.
+2. If user already provides station CODES (NDLS, HJP, CNB), use them directly - DO NOT call resolve_station_code.
+3. NEVER guess station codes or train data - always use tools.
+4. For seat availability, date format is DD-MM-YYYY.
+5. Format responses clearly with bullet points and tables when appropriate.
+6. If a tool returns an error, explain it clearly to the user.
 """
 
 # ===============================
