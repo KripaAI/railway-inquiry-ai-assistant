@@ -1,5 +1,7 @@
 # Indian Railways Inquiry AI Assistant
 
+https://www.linkedin.com/feed/update/urn:li:activity:7415069287402356736/
+
 An AI-powered Indian Railways inquiry system that allows users to ask natural language questions and receive accurate, real-time railway information. Built with a tool-driven, agentic AI architecture using LLMs, MCP servers, and LangGraph to ensure reliable, hallucination-free outputs.
 
 ---
