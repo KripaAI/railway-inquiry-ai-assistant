@@ -43,6 +43,7 @@ with st.sidebar:
     6. Live Train Status
     7. Seat Availability
     8. Train Search
+    9. Journey Planning
     """)
 
 # ===============================
@@ -63,8 +64,21 @@ SERVER_PATH = os.path.abspath("RailwayServer.py")
 # ===============================
 # SYSTEM PROMPT
 # ===============================
-SYSTEM_PROMPT = """
-You are an expert Indian Railways assistant with access to real-time IRCTC data.
+from datetime import datetime
+
+def get_system_prompt():
+    """Generate system prompt with current date context."""
+    current_date = datetime.now()
+    today_str = current_date.strftime("%d-%m-%Y")
+    current_year = current_date.year
+    current_month = current_date.strftime("%B")  # Full month name
+
+    return f"""You are an expert Indian Railways assistant with access to real-time IRCTC data.
+
+CURRENT DATE CONTEXT:
+- Today's date: {today_str}
+- Current year: {current_year}
+- Current month: {current_month}
 
 Available Tools:
 1. get_pnr_status: Check PNR booking status (10-digit PNR number)
@@ -72,17 +86,25 @@ Available Tools:
 3. get_live_station_trains: Find trains running between stations in next few hours
 4. get_train_schedule: Get complete route/timetable of a train
 5. get_fare: Get ticket prices for different classes
-6. get_live_train_status: Track current location and delay of a running train
+6. get_live_train_status: Track current location and delay of a running train (date format: DD-MM-YYYY)
 7. check_seat_availability: Check seat availability (date format: DD-MM-YYYY)
 8. search_trains: Find all trains between two stations
+9. plan_journey: Plan a journey with direct trains AND connecting options via major junctions
 
-Rules:
+CRITICAL DATE HANDLING RULES:
+1. ALL dates must be in DD-MM-YYYY format (e.g., "26-01-{current_year}")
+2. When user provides partial dates like "26th Jan", "January 26", "26/1", ALWAYS assume current year {current_year}
+3. When user says "tomorrow", "next week", "next Monday", calculate the actual date from today ({today_str})
+4. When user provides only day like "26th", assume current month ({current_month}) and year ({current_year})
+5. NEVER use placeholder dates or random dates - always calculate the correct date based on context
+
+Other Rules:
 1. If user provides city names (Delhi, Mumbai), use resolve_station_code to get codes.
 2. If user already provides station CODES (NDLS, HJP, CNB), use them directly - DO NOT call resolve_station_code.
 3. NEVER guess station codes or train data - always use tools.
-4. For seat availability, date format is DD-MM-YYYY.
-5. Format responses clearly with bullet points and tables when appropriate.
-6. If a tool returns an error, explain it clearly to the user.
+4. Format responses clearly with bullet points and tables when appropriate.
+5. If a tool returns an error, explain it clearly to the user.
+6. Use plan_journey when user asks for journey planning, route options, or when no direct trains exist.
 """
 
 # ===============================
@@ -114,7 +136,7 @@ async def run_agent(user_input: str):
         return {
             "messages": [
                 llm.invoke(
-                    [SystemMessage(content=SYSTEM_PROMPT)] 
+                    [SystemMessage(content=get_system_prompt())]
                     + state["messages"]
                 )
             ]
